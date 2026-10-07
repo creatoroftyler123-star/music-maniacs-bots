@@ -165,6 +165,7 @@ def build_embed(track: dict, genre_label: str) -> discord.Embed:
 # ---------------- bot ----------------
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 http_session: aiohttp.ClientSession | None = None
 

@@ -1,60 +1,51 @@
-# Music Maniacs — Songlink Bot
+# Music Maniacs — Song of the Day
 
-Auto-replies to music links (Spotify, Apple Music, YouTube, YouTube Music,
-SoundCloud, Deezer, Tidal, Amazon Music) with the universal `song.link` URL,
-so everyone can open the track in their own streaming app.
+Posts a daily track to your server, rotating through your 12 genre channels'
+genres (rock → jazz → classical → … → instrumental → back to rock). Each
+post is a rich embed with artwork, artist, and a Spotify link.
 
-## 1. Create the bot in Discord
+## 1. Create a third Discord bot
 
-1. Go to https://discord.com/developers/applications → **New Application**,
-   name it (e.g. `Music Maniacs Linker`).
-2. **Bot** tab → **Reset Token** → copy the token (this is `DISCORD_TOKEN`).
-3. In the **Bot** tab, enable the **Message Content Intent** toggle (required
-   so the bot can read message text). Save.
-4. **OAuth2 → URL Generator**: check scopes `bot`, then in **Bot Permissions**
-   check: **Send Messages**, **Embed Links**, **Read Message History**.
-5. Open the generated URL, pick your server, authorize.
+1. https://discord.com/developers/applications → **New Application**.
+2. **Bot** tab → **Reset Token** → copy it (`DISCORD_TOKEN`).
+3. No privileged intents needed this time (it only sends messages).
+4. **OAuth2 → URL Generator**: scope `bot`; permissions: **Send Messages**,
+   **Embed Links**.
+5. Open the URL, add it to your server.
 
-Give the bot the **Send Messages** permission in whichever channels it should
-watch (it needs it even in links-only channels — its replies contain links,
-so they pass link-only AutoMod rules).
+## 2. Spotify credentials (read-only — no login needed)
 
-## 2. Odesli API key (recommended)
+Unlike the playlist bot, this one never touches your Spotify account:
 
-Odesli deprecated free keyless API access, so request a key or the bot will
-fail its conversion step. Contact them via https://odesli.co (see the contact
-link at the bottom of the page) and put the key in `ODESLI_API_KEY`.
+1. https://developer.spotify.com/dashboard → **Create app**.
+2. Copy the **Client ID** and **Client Secret**. No redirect URI needed.
 
-Without a key the bot still starts, logs a clear warning from its self-test,
-and simply won't reply to links.
-
-## 3. Run it (needs 24/7 hosting)
-
-This bot must stay online to work. Easy options: Railway, Replit, or any VPS.
+## 3. Run it (needs 24/7 hosting: Railway, Replit, VPS)
 
 ```bash
 pip install -r requirements.txt
-cp .env.example .env   # then fill in your values
-python bot.py
+cp .env.example .env   # fill in your values
+python sotd_bot.py
 ```
-
-Environment variables:
 
 | Var | Required | What |
 |-----|----------|------|
-| `DISCORD_TOKEN` | yes | Bot token from step 1 |
-| `ODESLI_API_KEY` | recommended | Odesli API key |
-| `TARGET_CHANNEL_IDS` | no | Comma-separated channel IDs to watch; empty = all channels |
+| `DISCORD_TOKEN` | yes | This bot's token |
+| `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | yes | From step 2 |
+| `POST_CHANNEL_ID` | yes | Where the daily song goes (e.g. #general) |
+| `POST_HOUR` | no | Hour to post, 0–23 (default 9) |
+| `TIMEZONE` | no | e.g. `America/Los_Angeles` (default UTC) |
+| `DB_PATH` | no | SQLite file (default `sotd_bot.db`) |
 
-To get a channel ID: Discord Settings → Advanced → enable Developer Mode,
-then right-click the channel → Copy Channel ID.
+Get a channel ID: Discord Settings → Advanced → Developer Mode → right-click
+channel → Copy Channel ID.
 
-## How it behaves
+## Commands
 
-- Ignores bots and its own messages.
-- Skips messages that already contain a `song.link` / `album.link` URL.
-- Converts only the **first** music link per message.
-- Strips tracking params (`si`, `utm_*`, …) before converting.
-- Replies with `🔗 Universal link: <song.link URL>` (no @mention).
-- If Odesli fails, it stays silent and logs the error — no spam.
-- On startup it self-tests the Odesli API and logs whether conversion works.
+| Command | What |
+|---------|------|
+| `!sotd` | Post today's pick right now |
+| `!sotd jazz` | Post a pick for a specific genre (rock, jazz, classical, hip-hop-rap, techno-edm-house, heavy-metal, country, random-music, pop, reggae, latin, instrumental) |
+
+Tracks are never repeated until every candidate has been posted. The bot
+picks from Spotify's most popular results per genre each day.
