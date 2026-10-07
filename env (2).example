@@ -1,0 +1,12 @@
+# Copy to .env and fill in. Never commit real secrets.
+DISCORD_TOKEN=second-bot-token-here
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
+SPOTIFY_REDIRECT_URI=https://your-app.up.railway.app/callback
+# Optional
+TARGET_CHANNEL_IDS=
+ANNOUNCE_CHANNEL_ID=
+WEEKLY_BUILD=true
+PLAYLIST_PUBLIC=true
+PORT=8000
+DB_PATH=playlist_bot.db
